@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#020804">
+  <title>WHR STUDIOS — 13 // ChatGPT Kancelarija v4</title>
+  <style>
+    :root {
+      --bg-deep: #020804;
+      --bg-surface: #061209;
+      --bg-glass: rgba(8, 24, 13, 0.88);
+      --border-soft: rgba(36, 233, 111, 0.22);
+      --border-bright: rgba(36, 233, 111, 0.65);
+      --text: #f5fff8;
+      --soft: #8fb89a;
+      --theme: #24e96f;
+      --theme-glow: rgba(36, 233, 111, 0.35);
+      --cyan: #00f2ff;
+      --amber: #ffb000;
+      --red: #ff4d62;
+      --purple: #bf5af2;
+      --topbar-h: 64px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      width: 100%; min-height: 100vh;
+      background: var(--bg-deep); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      overflow-x: hidden; overflow-y: auto;
+    }
+
+    body::before {
+      content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+      background-image:
+        radial-gradient(circle at 50% 10%, rgba(36, 233, 111, 0.12), transparent 45rem),
+        radial-gradient(circle at 90% 90%, rgba(0, 242, 255, 0.08), transparent 35rem);
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 26px 26px;
+    }
+
+    button, a, input, textarea { font: inherit; }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--theme); outline-offset: 3px; }
+
+    .os-topbar {
+      position: sticky; top: 0; z-index: 90; height: var(--topbar-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; border-bottom: 1px solid var(--border-soft);
+      background: rgba(2, 8, 4, 0.85); backdrop-filter: blur(18px);
+    }
+    .os-identity strong { font-size: 13px; letter-spacing: 1.8px; color: var(--theme); }
+    .os-identity small { font-size: 9px; color: var(--soft); letter-spacing: 1.2px; font-weight: bold; }
+
+    .os-status-pill {
+      display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
+      border: 1px solid var(--status-color, var(--theme)); border-radius: 999px;
+      color: var(--status-color, var(--theme));
+      background: color-mix(in srgb, var(--status-color, var(--theme)) 10%, transparent);
+      font: 900 10px/1 monospace; letter-spacing: 1px; cursor: pointer;
+    }
+    .os-status-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+
+    .desk-shell { width: min(1200px, 100%); margin: 0 auto; padding: 20px 16px 80px; display: flex; flex-direction: column; gap: 24px; }
+
+    .traffic-nav {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 16px;
+      background: var(--bg-glass); border: 1px solid var(--border-soft); border-radius: 10px;
+      font: 800 10px/1.4 monospace; letter-spacing: 1px;
+    }
+    .traffic-nav a { color: var(--cyan); text-decoration: none; }
+    .traffic-nav .curr { color: var(--theme); }
+
+    .center-stage {
+      display: grid; grid-template-columns: minmax(300px, 0.9fr) minmax(360px, 1.3fr);
+      gap: 20px; align-items: stretch;
+    }
+    @media (max-width: 820px) { .center-stage { grid-template-columns: 1fr; } }
+
+    .office-door-card {
+      min-height: 320px; border: 1px solid var(--border-bright); border-radius: 20px;
+      background: radial-gradient(circle at center, #0c2615 0%, #020804 80%);
+      cursor: pointer; display: flex; flex-direction: column; justify-content: space-between;
+      padding: 22px; box-shadow: 0 16px 45px rgba(0, 0, 0, 0.6), inset 0 0 35px var(--theme-glow);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .office-door-card:hover { transform: translateY(-3px) scale(1.01); border-color: var(--theme); }
+    .door-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .door-tag { font: 900 10px/1 monospace; color: var(--theme); letter-spacing: 2px; }
+    .door-auth-badge {
+      font: 900 9px/1 monospace; padding: 5px 8px; border-radius: 6px;
+      background: rgba(255, 77, 98, 0.12); border: 1px solid var(--red); color: var(--red);
+    }
+    .door-auth-badge.unlocked { background: rgba(36, 233, 111, 0.12); border-color: var(--theme); color: var(--theme); }
+    .door-symbol { font-size: 64px; line-height: 1; filter: drop-shadow(0 0 16px var(--theme)); display: block; margin-bottom: 8px; }
+    .door-graphic { text-align: center; margin: auto; }
+    .door-graphic strong { font-size: 20px; display: block; }
+    .door-graphic span { font: 800 10px/1.6 monospace; color: var(--soft); }
+    .door-footer { display: flex; justify-content: space-between; font: 800 10px/1 monospace; color: var(--cyan); }
+
+    .chath-card {
+      background: var(--bg-glass); border: 1px solid var(--border-soft); border-radius: 20px;
+      padding: 22px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px;
+    }
+    .chath-header { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-soft); padding-bottom: 12px; }
+    .chath-header h2 { font-size: 15px; color: var(--theme); letter-spacing: 1.5px; }
+    .chath-badge { font: 900 9px/1 monospace; color: var(--amber); border: 1px solid var(--amber); padding: 4px 8px; border-radius: 5px; }
+
+    .pipeline-diagram {
+      display: flex; justify-content: space-between; gap: 6px; padding: 10px 14px;
+      background: #010402; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; font: 800 9px/1 monospace;
+    }
+    .pipeline-step.active { color: var(--theme); text-shadow: 0 0 8px var(--theme); }
+
+    .chath-input-group textarea {
+      width: 100%; min-height: 80px; background: #010603; border: 1px solid var(--border-soft);
+      border-radius: 10px; color: var(--text); padding: 12px; font: 12px/1.6 monospace; resize: vertical;
+    }
+    .chath-input-group textarea:focus { border-color: var(--theme); outline: none; }
+
+    .route-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .btn-route {
+      padding: 8px 10px; border: 1px solid var(--border-soft); background: rgba(255,255,255,0.02);
+      border-radius: 8px; color: var(--text); font: 800 9px/1 monospace; cursor: pointer; text-align: center;
+    }
+    .btn-route.selected { border-color: var(--theme); color: var(--theme); background: rgba(36, 233, 111, 0.1); }
+
+    .chath-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .btn-dispatch {
+      padding: 10px 18px; border: 1px solid var(--theme); border-radius: 9px;
+      background: rgba(36, 233, 111, 0.1); color: var(--theme); font: 900 10px/1 monospace; cursor: pointer;
+    }
+    .btn-dispatch:hover { background: var(--theme); color: #000; }
+
+    .app-icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 16px; }
+    .app-icon-btn {
+      aspect-ratio: 1; border-radius: 18px; background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(0,0,0,0.5)), #08160c;
+      border: 1px solid var(--border-soft); display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 6px; padding: 8px; cursor: pointer; position: relative; color: var(--text); text-decoration: none;
+      transition: transform 0.16s, border-color 0.16s;
+    }
+    .app-icon-btn:hover { transform: translateY(-4px); border-color: var(--app-color, var(--theme)); }
+    .app-icon-symbol { font-size: 28px; }
+    .app-icon-label { font: 800 9px/1.2 monospace; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+    .app-status-badge { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--theme); box-shadow: 0 0 6px var(--theme); }
+
+    .os-window {
+      position: fixed; top: 100px; left: 100px; width: min(620px, 94vw); min-height: 400px;
+      background: var(--bg-surface); border: 1px solid var(--border-bright); border-radius: 16px;
+      z-index: 100; box-shadow: 0 24px 80px rgba(0,0,0,0.85); display: none; flex-direction: column; overflow: hidden; resize: both;
+    }
+    .os-window.active { display: flex; }
+    @media (max-width: 768px) { .os-window { top: 0 !important; left: 0 !important; width: 100% !important; height: 100dvh !important; border-radius: 0 !important; resize: none !important; } }
+
+    .window-titlebar { padding: 12px 16px; background: #020804; border-bottom: 1px solid var(--border-soft); display: flex; justify-content: space-between; align-items: center; cursor: move; }
+    .window-title { font: 900 11px/1 monospace; color: var(--theme); letter-spacing: 1.5px; }
+    .btn-win-close { width: 14px; height: 14px; border-radius: 50%; border: none; background: var(--red); cursor: pointer; }
+    .window-body { flex: 1; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+
+    dialog#gateDialog {
+      width: min(400px, 90vw); margin: auto; padding: 24px; border: 1px solid var(--theme);
+      border-radius: 16px; background: #05140a; color: var(--text); box-shadow: 0 20px 70px rgba(0,0,0,0.85);
+    }
+    dialog#gateDialog::backdrop { background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+    dialog input { width: 100%; min-height: 40px; padding: 8px 12px; background: #010603; border: 1px solid var(--border-soft); border-radius: 8px; color: var(--text); font: 13px monospace; margin-bottom: 12px; }
+    .dialog-btns { display: flex; gap: 10px; }
+    .dialog-btns button { flex: 1; min-height: 38px; border-radius: 8px; border: 1px solid var(--border-soft); background: transparent; color: var(--text); font: 900 10px/1 monospace; cursor: pointer; }
+    .dialog-btns .btn-confirm { border-color: var(--theme); background: rgba(36,233,111,0.15); color: var(--theme); }
+  </style>
+</head>
+<body>
+
+  <header class="os-topbar">
+    <div class="os-identity">
+      <strong>◇ WHR OS // KANCELARIJA 13</strong>
+      <small>CHATGPT SISTEMSKA ARHITEKTURA // VERZIJA V4</small>
+    </div>
+    <button id="globalStatusPill" class="os-status-pill" type="button">
+      <span class="dot"></span>
+      <span id="statusLabel">MAGISTRALA: OPERATIVNA</span>
+    </button>
+  </header>
+
+  <div class="desk-shell">
+    <nav class="traffic-nav">
+      <a href="https://nenadcraft-spec.github.io/beli_zec/">CENTRALA (01)</a>
+      <span class="sep">→</span>
+      <span class="curr">KANCELARIJA 13 (CHATGPT V4)</span>
+      <span class="sep">→</span>
+      <a href="https://nenadcraft-spec.github.io/gemini_zec/">GEMINI (12)</a>
+      <span class="sep">/</span>
+      <a href="https://nenadcraft-spec.github.io/beli_zec/#engine">COLOR ENGINE</a>
+    </nav>
+
+    <section class="center-stage">
+      <div id="doorChatGPT" class="office-door-card" role="button" tabindex="0">
+        <div class="door-top">
+          <span class="door-tag">13 // ARHITEKTONSKA KAPIJA</span>
+          <span id="authBadge" class="door-auth-badge">ZAKLJUČANO</span>
+        </div>
+        <div class="door-graphic">
+          <span class="door-symbol">📐</span>
+          <strong>ChatGPT Arhitektura</strong>
+          <span>POKUCAJ ZA VERIFIKACIJU KODA</span>
+        </div>
+        <div class="door-footer">
+          <span>SPECIFIKACIJE &amp; UGOVORI</span>
+          <span>OTVORI LOGIČKI PULT →</span>
+        </div>
+      </div>
+
+      <div class="chath-card">
+        <div class="chath-header">
+          <h2>CHAT-H BOT // ARHITEKTONSKI RUTER</h2>
+          <span class="chath-badge">TOKEN ŠTEDNJA = ON</span>
+        </div>
+        <div class="pipeline-diagram">
+          <span class="pipeline-step active">ZAHTEV</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipeline-step active">ARHITEKTURA</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipeline-step">QA TEST</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipeline-step">VERIFIKACIJA</span>
+        </div>
+        <div class="chath-input-group">
+          <textarea id="chathPrompt" placeholder="Unesi arhitektonsku specifikaciju, promenu interfejsa ili strukturu podataka..."></textarea>
+          <div class="route-selector">
+            <button class="btn-route selected" type="button" data-target="13_chatgpt">13 // CHATGPT</button>
+            <button class="btn-route" type="button" data-target="12_gemini">12 // GEMINI</button>
+            <button class="btn-route" type="button" data-target="10_qwen">10 // QWEN</button>
+          </div>
+        </div>
+        <div class="chath-actions">
+          <div id="chathLog" style="font: 9px monospace; color: var(--soft);">ARHITEKTURA = SPREMNA ZA AUDIT</div>
+          <button id="btnDispatch" class="btn-dispatch" type="button">PROCESUIRAJ</button>
+        </div>
+      </div>
+    </section>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+      <span style="font: 900 11px monospace; color: var(--soft); letter-spacing: 2px;">WHR OPERATIVNI SISTEM // MODULI I ALATI</span>
+      <button id="btnResetWindows" style="background:none; border:1px solid var(--border-soft); color:var(--soft); padding:4px 10px; font:800 8px monospace; cursor:pointer;">RESET PROZORA</button>
+    </div>
+
+    <main class="app-icon-grid">
+      <a class="app-icon-btn" href="https://nenadcraft-spec.github.io/beli_zec/" style="--app-color: var(--red);">
+        <span class="app-status-badge" style="background:var(--red);"></span>
+        <span class="app-icon-symbol">🐇</span>
+        <span class="app-icon-label">01 Centrala</span>
+      </a>
+      <button class="app-icon-btn" type="button" data-open-win="win-arch" style="--app-color: var(--theme);">
+        <span class="app-status-badge"></span>
+        <span class="app-icon-symbol">🏛️</span>
+        <span class="app-icon-label">Ugovori</span>
+      </button>
+      <a class="app-icon-btn" href="https://nenadcraft-spec.github.io/gemini_zec/" style="--app-color: var(--purple);">
+        <span class="app-status-badge" style="background:var(--purple);"></span>
+        <span class="app-icon-symbol">🔮</span>
+        <span class="app-icon-label">12 Gemini</span>
+      </a>
+      <button class="app-icon-btn" type="button" data-open-win="win-qa" style="--app-color: var(--cyan);">
+        <span class="app-status-badge" style="background:var(--cyan);"></span>
+        <span class="app-icon-symbol">✅</span>
+        <span class="app-icon-label">QA Audit</span>
+      </button>
+      <a class="app-icon-btn" href="https://nenadcraft-spec.github.io/beli_zec/#engine" style="--app-color: var(--cyan);">
+        <span class="app-status-badge"></span>
+        <span class="app-icon-symbol">🧪</span>
+        <span class="app-icon-label">Color Engine</span>
+      </a>
+    </main>
+  </div>
+
+  <div id="win-arch" class="os-window" style="top: 80px; left: 60px;">
+    <div class="window-titlebar">
+      <span class="window-title">13 // UGOVORI I DOKUMENTACIJA ARHITEKTURE</span>
+      <button class="btn-win-close" data-close-win="win-arch"></button>
+    </div>
+    <div class="window-body">
+      <div style="padding:12px; background:#010402; border:1px solid var(--border-soft); border-radius:10px; font:11px/1.6 monospace;">
+        <strong>USTAV DUALNE ARHITEKTURE (WHR STUDIOS)</strong><br>
+        1. AI linija generiše dokaz i sirovu obradu.<br>
+        2. OI linija (Beli Zec / Čovek) vrši tumačenje i konačnu overu.<br>
+        3. Nijedan binarni podatak ne napušta lokalni računar.
+      </div>
+    </div>
+  </div>
+
+  <div id="win-qa" class="os-window" style="top: 120px; left: 120px;">
+    <div class="window-titlebar">
+      <span class="window-title">13 // QA TESTIRANJE INTEGRITETA</span>
+      <button class="btn-win-close" data-close-win="win-qa"></button>
+    </div>
+    <div class="window-body">
+      <p style="font: 12px/1.6 monospace; color: var(--soft);">Status provere sintakse i koda:</p>
+      <div style="padding:10px; background:#010402; border:1px solid var(--theme); border-radius:8px; font:10px monospace; color:var(--theme);">
+        PASS: Web Crypto API (PBKDF2 120k)<br>
+        PASS: Blob URL in-memory sanitization<br>
+        PASS: Safe Routing without circular deadlocks
+      </div>
+    </div>
+  </div>
+
+  <dialog id="gateDialog">
+    <form id="gateForm" method="dialog">
+      <h3 style="color:var(--theme); margin-bottom:8px;">Kucanje // Kancelarija 13</h3>
+      <p id="gateHelpTxt" style="font-size:12px; color:var(--soft); margin-bottom:14px;">Unesi lozinku za lokalnu sesiju Kancelarije 13.</p>
+      <label style="font:900 9px monospace; color:var(--theme);">LOZINKA</label>
+      <input id="pwdField" type="password" required minlength="4" autocomplete="current-password">
+      <div id="pwdConfirmWrap" hidden>
+        <label style="font:900 9px monospace; color:var(--theme);">POTVRDI LOZINKU</label>
+        <input id="pwdConfirmField" type="password" minlength="4" autocomplete="new-password">
+      </div>
+      <div id="gateErrMsg" style="color:var(--red); font:9px monospace; min-height:14px; margin-bottom:8px;"></div>
+      <div class="dialog-btns">
+        <button type="button" id="btnCancelDialog">ODUSTANI</button>
+        <button type="submit" class="btn-confirm">POTVRDI</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    "use strict";
+    const statuses = [
+      { key: "operational", label: "MAGISTRALA: OPERATIVNA", color: "#24e96f" },
+      { key: "standby", label: "MAGISTRALA: STANDBY", color: "#ffb000" },
+      { key: "maintenance", label: "MAGISTRALA: ODRŽAVANJE", color: "#ff4d62" }
+    ];
+    const statusPill = document.getElementById("globalStatusPill");
+    const statusLabel = document.getElementById("statusLabel");
+    function setStatus(k) {
+      const s = statuses.find(x => x.key === k) || statuses[0];
+      statusPill.style.setProperty("--status-color", s.color);
+      statusLabel.textContent = s.label;
+      localStorage.setItem("whr_chatgpt_v4_status", s.key);
+    }
+    statusPill.addEventListener("click", () => {
+      const c = localStorage.getItem("whr_chatgpt_v4_status") || "operational";
+      const next = (statuses.findIndex(x => x.key === c) + 1) % statuses.length;
+      setStatus(statuses[next].key);
+    });
+    setStatus(localStorage.getItem("whr_chatgpt_v4_status") || "operational");
+
+    const doorChatGPT = document.getElementById("doorChatGPT");
+    const authBadge = document.getElementById("authBadge");
+    const gateDialog = document.getElementById("gateDialog");
+    const gateForm = document.getElementById("gateForm");
+    const pwdField = document.getElementById("pwdField");
+    const pwdConfirmField = document.getElementById("pwdConfirmField");
+    const pwdConfirmWrap = document.getElementById("pwdConfirmWrap");
+    const gateHelpTxt = document.getElementById("gateHelpTxt");
+    const gateErrMsg = document.getElementById("gateErrMsg");
+
+    let isUnlocked = sessionStorage.getItem("whr_chatgpt_v4_unlocked") === "yes";
+    function refreshDoor() {
+      if (isUnlocked) { authBadge.textContent = "OTKLJUČANO"; authBadge.classList.add("unlocked"); }
+      else { authBadge.textContent = "ZAKLJUČANO"; authBadge.classList.remove("unlocked"); }
+    }
+    function b64(b) { return btoa(String.fromCharCode(...b)); }
+    function deb64(s) { return Uint8Array.from(atob(s), c => c.charCodeAt(0)); }
+    async function hashPwd(p, s) {
+      const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(p), "PBKDF2", false, ["deriveBits"]);
+      const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: s, iterations: 120000, hash: "SHA-256" }, k, 256);
+      return b64(new Uint8Array(bits));
+    }
+
+    doorChatGPT.addEventListener("click", () => {
+      if (isUnlocked) { openWin("win-arch"); return; }
+      const first = !localStorage.getItem("whr_chatgpt_v4_verifier");
+      pwdConfirmWrap.hidden = !first;
+      pwdConfirmField.required = first;
+      gateHelpTxt.textContent = first ? "Prvi ulaz u Kancelariju 13: postavi lokalnu lozinku." : "Unesi lokalnu lozinku za ulaz.";
+      gateErrMsg.textContent = "";
+      gateForm.reset();
+      gateDialog.showModal();
+      pwdField.focus();
+    });
+
+    document.getElementById("btnCancelDialog").addEventListener("click", () => gateDialog.close());
+
+    gateForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const p = pwdField.value;
+      const v = localStorage.getItem("whr_chatgpt_v4_verifier");
+      try {
+        if (!v) {
+          if (p.length < 4) { gateErrMsg.textContent = "Minimalno 4 karaktera."; return; }
+          if (p !== pwdConfirmField.value) { gateErrMsg.textContent = "Lozinke se ne podudaraju."; return; }
+          const s = crypto.getRandomValues(new Uint8Array(16));
+          localStorage.setItem("whr_chatgpt_v4_salt", b64(s));
+          localStorage.setItem("whr_chatgpt_v4_verifier", await hashPwd(p, s));
+        } else {
+          const s = deb64(localStorage.getItem("whr_chatgpt_v4_salt"));
+          if (await hashPwd(p, s) !== v) { gateErrMsg.textContent = "Pristup odbijen: pogrešna lozinka."; return; }
+        }
+        isUnlocked = true;
+        sessionStorage.setItem("whr_chatgpt_v4_unlocked", "yes");
+        gateDialog.close();
+        refreshDoor();
+        openWin("win-arch");
+      } catch (_) { gateErrMsg.textContent = "Kripto API greška."; }
+    });
+    refreshDoor();
+
+    const windows = document.querySelectorAll(".os-window");
+    function openWin(id) {
+      const w = document.getElementById(id);
+      if (w) { w.classList.add("active"); w.style.zIndex = "110"; }
+    }
+    function closeWin(id) {
+      const w = document.getElementById(id);
+      if (w) w.classList.remove("active");
+    }
+    document.querySelectorAll("[data-open-win]").forEach(b => b.addEventListener("click", () => openWin(b.dataset.openWin)));
+    document.querySelectorAll("[data-close-win]").forEach(b => b.addEventListener("click", () => closeWin(b.dataset.closeWin)));
+    document.getElementById("btnResetWindows").addEventListener("click", () => windows.forEach(w => w.classList.remove("active")));
+
+    const btnDispatch = document.getElementById("btnDispatch");
+    const chathPrompt = document.getElementById("chathPrompt");
+    const chathLog = document.getElementById("chathLog");
+    btnDispatch.addEventListener("click", () => {
+      if (!chathPrompt.value.trim()) { chathLog.textContent = "GREŠKA: Nalog je prazan."; return; }
+      chathLog.textContent = "ARHITEKTONSKI NALOG VERIFIKOVAN: Spreman za commit.";
+    });
+  </script>
+</body>
+</html>
