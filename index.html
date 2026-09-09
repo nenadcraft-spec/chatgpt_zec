@@ -137,6 +137,36 @@
     }
     .btn-dispatch:hover { background: var(--theme); color: #000; }
 
+    /* UNIFICIRANI MP4 VIDEO PULT */
+    .video-monitor-card {
+      background: #010603; border: 1px solid var(--border-bright); border-radius: 20px;
+      padding: 18px; display: flex; flex-direction: column; gap: 14px;
+      box-shadow: 0 16px 45px rgba(0,0,0,0.7), inset 0 0 30px var(--theme-glow);
+    }
+    .monitor-top {
+      display: flex; justify-content: space-between; align-items: center;
+      font: 900 10px/1 monospace; letter-spacing: 1.5px;
+    }
+    .video-viewport {
+      width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px;
+      border: 1px solid var(--border-soft); overflow: hidden; display: flex; align-items: center;
+      justify-content: center; position: relative;
+    }
+    .video-viewport video { width: 100%; height: 100%; object-fit: contain; }
+    .video-placeholder {
+      text-align: center; color: var(--soft); font: 11px/1.6 monospace;
+    }
+    .video-placeholder strong { display: block; font-size: 15px; color: var(--text); margin-bottom: 4px; }
+    .monitor-controls {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .btn-file-select {
+      padding: 8px 16px; border: 1px solid var(--theme); border-radius: 8px;
+      background: rgba(36, 233, 111, 0.12); color: var(--theme); font: 900 10px/1 monospace;
+      cursor: pointer; transition: 0.15s;
+    }
+    .btn-file-select:hover { background: var(--theme); color: #000; }
+
     .app-icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 16px; }
     .app-icon-btn {
       aspect-ratio: 1; border-radius: 18px; background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(0,0,0,0.5)), #08160c;
@@ -194,7 +224,7 @@
       <span class="sep">→</span>
       <a href="https://nenadcraft-spec.github.io/gemini_zec/">GEMINI (12)</a>
       <span class="sep">/</span>
-      <a href="https://nenadcraft-spec.github.io/beli_zec/#engine">COLOR ENGINE</a>
+      <a href="https://nenadcraft-spec.github.io/qwen_zec/">QWEN (10)</a>
     </nav>
 
     <section class="center-stage">
@@ -243,6 +273,26 @@
       </div>
     </section>
 
+    <!-- UNIFICIRANI VIDEO MONITOR SEKCIJA -->
+    <section class="video-monitor-card">
+      <div class="monitor-top">
+        <span style="color: var(--cyan);">VIDEO // MP4 MONITOR ARHITEKTURE</span>
+        <span style="color: var(--theme);">LOCAL PLAYBACK (ZERO-LEAK)</span>
+      </div>
+      <div class="video-viewport">
+        <video id="deskVideoPlayer" controls playsinline></video>
+        <div id="deskVideoPlaceholder" class="video-placeholder">
+          <strong>VELIKI ARHITEKTONSKI EKRAN</strong>
+          <span>IZABERI LOKALNI MP4 // FAJL NE NAPUŠTA UREĐAJ</span>
+        </div>
+      </div>
+      <div class="monitor-controls">
+        <div id="videoFileStatus" style="font: 9px monospace; color: var(--soft);">MP4_APP_BRIDGE = NOT_CONNECTED</div>
+        <input type="file" id="deskVideoInput" accept="video/mp4,video/*" style="display: none;">
+        <button id="btnSelectVideo" class="btn-file-select" type="button">IZABERI MP4</button>
+      </div>
+    </section>
+
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
       <span style="font: 900 11px monospace; color: var(--soft); letter-spacing: 2px;">WHR OPERATIVNI SISTEM // MODULI I ALATI</span>
       <button id="btnResetWindows" style="background:none; border:1px solid var(--border-soft); color:var(--soft); padding:4px 10px; font:800 8px monospace; cursor:pointer;">RESET PROZORA</button>
@@ -263,6 +313,11 @@
         <span class="app-status-badge" style="background:var(--purple);"></span>
         <span class="app-icon-symbol">🔮</span>
         <span class="app-icon-label">12 Gemini</span>
+      </a>
+      <a class="app-icon-btn" href="https://nenadcraft-spec.github.io/qwen_zec/" style="--app-color: var(--cyan);">
+        <span class="app-status-badge" style="background:var(--cyan);"></span>
+        <span class="app-icon-symbol">⚡</span>
+        <span class="app-icon-label">10 Qwen</span>
       </a>
       <button class="app-icon-btn" type="button" data-open-win="win-qa" style="--app-color: var(--cyan);">
         <span class="app-status-badge" style="background:var(--cyan);"></span>
@@ -302,6 +357,7 @@
       <div style="padding:10px; background:#010402; border:1px solid var(--theme); border-radius:8px; font:10px monospace; color:var(--theme);">
         PASS: Web Crypto API (PBKDF2 120k)<br>
         PASS: Blob URL in-memory sanitization<br>
+        PASS: Picture-in-Picture API Bridge Active<br>
         PASS: Safe Routing without circular deadlocks
       </div>
     </div>
@@ -407,6 +463,27 @@
       } catch (_) { gateErrMsg.textContent = "Kripto API greška."; }
     });
     refreshDoor();
+
+    /* MONITOR VIDEO LOGIKA (BLOB + PIP) */
+    const deskVideoPlayer = document.getElementById("deskVideoPlayer");
+    const deskVideoPlaceholder = document.getElementById("deskVideoPlaceholder");
+    const deskVideoInput = document.getElementById("deskVideoInput");
+    const btnSelectVideo = document.getElementById("btnSelectVideo");
+    const videoFileStatus = document.getElementById("videoFileStatus");
+    let currentVideoBlobUrl = null;
+
+    btnSelectVideo.addEventListener("click", () => deskVideoInput.click());
+    deskVideoInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (currentVideoBlobUrl) { URL.revokeObjectURL(currentVideoBlobUrl); }
+      currentVideoBlobUrl = URL.createObjectURL(file);
+      deskVideoPlayer.src = currentVideoBlobUrl;
+      deskVideoPlaceholder.style.display = "none";
+      videoFileStatus.textContent = `VIDEO // ${file.name} — lokalni MP4 je spreman.`;
+      videoFileStatus.style.color = "var(--theme)";
+      deskVideoPlayer.play().catch(() => {});
+    });
 
     const windows = document.querySelectorAll(".os-window");
     function openWin(id) {
